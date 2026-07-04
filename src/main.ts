@@ -9,19 +9,49 @@ import {
 import "./styles.css";
 import {
   checklist,
+  getGuideGoalOption,
+  getGuideRecommendation,
   getDrivingFacts,
+  getResourceStateOption,
   getSourcesForFact,
+  guideGoalOptions,
   playerDataFacts,
   playerGuide,
+  resourceStateOptions,
   sourceRecords,
   statusLabels,
+  type GuideGoal,
   type PlayerDataFact,
+  type ResourceState,
   type SourceRecord,
   type SourceStatus,
 } from "./guide-data";
 
+interface GuideSelection {
+  goal: GuideGoal;
+  resourceState: ResourceState;
+}
+
 function statusBadge(status: SourceStatus): string {
   return `<span class="status status-${status}">${statusLabels[status]}</span>`;
+}
+
+function selectedAttribute(value: string, selectedValue: string): string {
+  return value === selectedValue ? " selected" : "";
+}
+
+function guideOptions<TValue extends string>(
+  options: Array<{ value: TValue; label: string; helper: string }>,
+  selectedValue: TValue,
+): string {
+  return options
+    .map(
+      (option) =>
+        `<option value="${option.value}"${selectedAttribute(option.value, selectedValue)}>
+          ${option.label}
+        </option>`,
+    )
+    .join("");
 }
 
 function factCard(fact: PlayerDataFact): string {
@@ -57,8 +87,11 @@ function sourceItem(source: SourceRecord): string {
   `;
 }
 
-function renderGuide(): string {
-  const drivingFacts = getDrivingFacts();
+function renderGuide(selection: GuideSelection): string {
+  const activeRecommendation = getGuideRecommendation(selection.goal, selection.resourceState);
+  const selectedGoal = getGuideGoalOption(activeRecommendation.goal);
+  const selectedResourceState = getResourceStateOption(activeRecommendation.resourceState);
+  const drivingFacts = getDrivingFacts(activeRecommendation);
   const drivingSources = new Map<string, SourceRecord>();
 
   drivingFacts.forEach((fact) => {
@@ -66,7 +99,7 @@ function renderGuide(): string {
   });
 
   const secondaryFacts = playerDataFacts.filter(
-    (fact) => !playerGuide.drivingFactIds.includes(fact.id),
+    (fact) => !activeRecommendation.drivingFactIds.includes(fact.id),
   );
 
   return `
@@ -85,26 +118,61 @@ function renderGuide(): string {
 
     <main>
       <section id="guide" class="guide-band" aria-labelledby="guide-title">
+        <div class="guide-heading">
+          <p class="eyebrow">Thai-first Player Guide</p>
+          <h1 id="guide-title">${playerGuide.playerJob}</h1>
+        </div>
         <div class="guide-shell">
-          <div class="answer-stack">
-            <p class="eyebrow">Thai-first Player Guide</p>
-            <h1 id="guide-title">${playerGuide.playerJob}</h1>
+          <aside class="control-panel" data-testid="guide-controls" aria-label="Guide controls">
+            <h2>ปรับคำตอบ</h2>
+            <label for="guide-goal">
+              <span>เป้าหมายตอนนี้</span>
+              <select id="guide-goal" aria-label="เลือกเป้าหมาย">
+                ${guideOptions(guideGoalOptions, activeRecommendation.goal)}
+              </select>
+              <span class="control-help">${selectedGoal.helper}</span>
+            </label>
+            <label for="resource-state">
+              <span>ทรัพยากรคร่าว ๆ</span>
+              <select id="resource-state" aria-label="เลือกทรัพยากร">
+                ${guideOptions(resourceStateOptions, activeRecommendation.resourceState)}
+              </select>
+              <span class="control-help">${selectedResourceState.helper}</span>
+            </label>
+            <button type="button" class="primary-button">
+              ดูคำแนะนำ
+              <i data-lucide="arrow-right" aria-hidden="true"></i>
+            </button>
+            <p>คำตอบจะเลี่ยงตัวเลือกที่ใช้ทรัพยากรเกินสถานะคร่าว ๆ และไม่ยก Kakao/community lead เป็น Classic fact</p>
+          </aside>
 
-            <article class="answer-panel" data-testid="primary-recommendation">
+          <div class="answer-stack">
+            <article
+              class="answer-panel"
+              data-testid="primary-recommendation"
+              aria-live="polite"
+            >
               <div class="answer-panel__header">
-                <span class="guide-type">${playerGuide.target.type}</span>
+                <span class="guide-type">${activeRecommendation.target.type}</span>
                 <span class="reviewed">
                   <i data-lucide="calendar-days" aria-hidden="true"></i>
                   ตรวจล่าสุด ${playerGuide.lastReviewed}
                 </span>
               </div>
-              <h2>${playerGuide.recommendation}</h2>
-              <p class="target">${playerGuide.target.name}</p>
-              <p>${playerGuide.shortReason}</p>
+              <div class="state-summary" data-testid="selected-guide-state">
+                <span><strong>เป้าหมาย:</strong> ${selectedGoal.label}</span>
+                <span><strong>ทรัพยากร:</strong> ${selectedResourceState.label}</span>
+              </div>
+              <h2>${activeRecommendation.recommendation}</h2>
+              <p class="target">${activeRecommendation.target.name}</p>
+              <p>${activeRecommendation.shortReason}</p>
+              <p class="level-cost" data-testid="level-cost-context">
+                <strong>Level / Cost:</strong> ${activeRecommendation.levelCostContext}
+              </p>
               <div class="status-row" aria-label="Recommendation source statuses">
                 ${drivingFacts.map((fact) => statusBadge(fact.status)).join("")}
               </div>
-              <p class="caution">${playerGuide.caution}</p>
+              <p class="caution">${activeRecommendation.caution}</p>
             </article>
 
             <section
@@ -124,32 +192,6 @@ function renderGuide(): string {
               </ul>
             </section>
           </div>
-
-          <aside class="control-panel" data-testid="guide-controls" aria-label="Guide controls">
-            <h2>ปรับคำตอบ</h2>
-            <label>
-              <span>เป้าหมายตอนนี้</span>
-              <select aria-label="เลือกเป้าหมาย">
-                <option>ผ่านช่วงต้นเกม</option>
-                <option>เก็บเหรียญ</option>
-                <option>ทำคะแนนดีขึ้น</option>
-                <option>เช็ก Event วันนี้</option>
-              </select>
-            </label>
-            <label>
-              <span>ทรัพยากรคร่าว ๆ</span>
-              <select aria-label="เลือกทรัพยากร">
-                <option>มีเหรียญจำกัด</option>
-                <option>อัปได้ 1 อย่างวันนี้</option>
-                <option>มีคริสตัลแต่ยังไม่มั่นใจ</option>
-              </select>
-            </label>
-            <button type="button" class="primary-button">
-              ดูคำแนะนำ
-              <i data-lucide="arrow-right" aria-hidden="true"></i>
-            </button>
-            <p>ตัวเลือกนี้เป็น tracer แรก: คำตอบขึ้นก่อน แล้วข้อมูลรองรับอยู่ใกล้พอให้ตรวจได้ทันที</p>
-          </aside>
         </div>
       </section>
 
@@ -236,14 +278,38 @@ if (!app) {
   throw new Error("App root not found");
 }
 
-app.innerHTML = renderGuide();
+const appRoot = app;
 
-createIcons({
-  icons: {
-    ArrowRight,
-    CalendarDays,
-    ExternalLink,
-    Search,
-    ShieldCheck,
-  },
+function refreshIcons(): void {
+  createIcons({
+    icons: {
+      ArrowRight,
+      CalendarDays,
+      ExternalLink,
+      Search,
+      ShieldCheck,
+    },
+  });
+}
+
+function mountGuide(selection: GuideSelection): void {
+  appRoot.innerHTML = renderGuide(selection);
+  refreshIcons();
+
+  const goalSelect = document.querySelector<HTMLSelectElement>("#guide-goal");
+  const resourceStateSelect = document.querySelector<HTMLSelectElement>("#resource-state");
+  const applyButton = document.querySelector<HTMLButtonElement>(".primary-button");
+
+  applyButton?.addEventListener("click", () => {
+    mountGuide({
+      goal: (goalSelect?.value ?? playerGuide.defaultGoal) as GuideGoal,
+      resourceState: (resourceStateSelect?.value ??
+        playerGuide.defaultResourceState) as ResourceState,
+    });
+  });
+}
+
+mountGuide({
+  goal: playerGuide.defaultGoal,
+  resourceState: playerGuide.defaultResourceState,
 });

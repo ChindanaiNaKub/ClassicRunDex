@@ -164,6 +164,7 @@ svg {
   padding: clamp(24px, 5vw, 56px) clamp(14px, 4vw, 48px);
 }
 
+.guide-heading,
 .guide-shell,
 .content-band,
 .policy-band {
@@ -171,9 +172,13 @@ svg {
   margin: 0 auto;
 }
 
+.guide-heading {
+  margin-bottom: 18px;
+}
+
 .guide-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
   gap: 22px;
   align-items: start;
 }
@@ -217,6 +222,7 @@ svg {
 .answer-panel__header,
 .section-heading,
 .source-meta,
+.state-summary,
 .status-row {
   display: flex;
   align-items: center;
@@ -267,6 +273,30 @@ svg {
   font-weight: 780;
 }
 
+.state-summary {
+  align-items: stretch;
+  gap: 8px;
+}
+
+.state-summary span,
+.level-cost {
+  padding: 10px 12px;
+  background: var(--surface-strong);
+  border: 1px solid rgba(29, 127, 99, 0.2);
+  border-radius: 6px;
+}
+
+.state-summary span {
+  min-width: min(100%, 210px);
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.level-cost {
+  margin-bottom: 0;
+  color: #21443d;
+}
+
 .caution {
   margin-bottom: 0;
   padding: 12px 14px;
@@ -294,6 +324,13 @@ svg {
   gap: 7px;
   color: var(--ink);
   font-weight: 760;
+}
+
+.control-help {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.45;
 }
 
 .control-panel select,
