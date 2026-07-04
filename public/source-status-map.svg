@@ -1,0 +1,24 @@
+<svg width="640" height="520" viewBox="0 0 640 520" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Source status map</title>
+  <desc id="desc">Official Classic and player-verified Classic can flow into the Player Guide. Historical Kakao and community leads stay separated as context.</desc>
+  <rect width="640" height="520" rx="28" fill="#F8FAF6"/>
+  <rect x="48" y="48" width="544" height="88" rx="12" fill="#DFF2E9" stroke="#1D7F63" stroke-width="3"/>
+  <text x="72" y="83" fill="#0F5F4A" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">official Classic</text>
+  <text x="72" y="113" fill="#376B5E" font-family="Inter, Arial, sans-serif" font-size="18">Safe to cite when Source Record is complete</text>
+  <rect x="48" y="160" width="544" height="88" rx="12" fill="#E2EDFF" stroke="#246BD5" stroke-width="3"/>
+  <text x="72" y="195" fill="#2258A7" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800">player-verified Classic</text>
+  <text x="72" y="225" fill="#4B6590" font-family="Inter, Arial, sans-serif" font-size="18">Can drive recommendation after review</text>
+  <rect x="48" y="280" width="244" height="88" rx="12" fill="#F8DED8" stroke="#BD4936" stroke-width="3"/>
+  <text x="72" y="315" fill="#943827" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">historical Kakao</text>
+  <text x="72" y="345" fill="#815147" font-family="Inter, Arial, sans-serif" font-size="17">Context only</text>
+  <rect x="348" y="280" width="244" height="88" rx="12" fill="#FBEFC9" stroke="#A16C08" stroke-width="3"/>
+  <text x="372" y="315" fill="#77550E" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">community lead</text>
+  <text x="372" y="345" fill="#765C22" font-family="Inter, Arial, sans-serif" font-size="17">Question to verify</text>
+  <path d="M320 136V152" stroke="#1D7F63" stroke-width="4" stroke-linecap="round"/>
+  <path d="M320 248V408" stroke="#1D7F63" stroke-width="4" stroke-linecap="round"/>
+  <path d="M320 408L306 392M320 408L334 392" stroke="#1D7F63" stroke-width="4" stroke-linecap="round"/>
+  <path d="M170 368C170 408 224 424 272 424" stroke="#BD4936" stroke-width="4" stroke-dasharray="10 10" stroke-linecap="round"/>
+  <path d="M470 368C470 408 416 424 368 424" stroke="#A16C08" stroke-width="4" stroke-dasharray="10 10" stroke-linecap="round"/>
+  <rect x="196" y="408" width="248" height="64" rx="12" fill="#1D2321"/>
+  <text x="234" y="448" fill="white" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">Player Guide</text>
+</svg>
