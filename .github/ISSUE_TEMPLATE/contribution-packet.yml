@@ -1,0 +1,101 @@
+name: Contribution Packet
+description: Submit a prepared, reviewable packet of Source Records, Player Data, Translations, and guide impact.
+title: "[Contribution Packet]: "
+labels:
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when you have a reviewable Contribution Packet, not just a quick report.
+
+        A packet may propose Source Records, Player Data facts, Translations, and Player Guide impact. It must still be reviewed before any recommendation-driving status is published.
+  - type: textarea
+    id: contributors
+    attributes:
+      label: Contributors
+      description: Name everyone who prepared observations, translations, packet data, or review context.
+      placeholder: |
+        - name:
+          role: reporter | translator | data_contributor | data_reviewer | guide_author | maintainer
+          handle:
+    validations:
+      required: true
+  - type: textarea
+    id: source_records
+    attributes:
+      label: Source Records
+      description: List each source with owner, URL or observation note, date observed, proposed status, and permission/safety notes.
+      placeholder: |
+        - id:
+          owner:
+          url_or_observation:
+          observed_at:
+          proposed_status:
+          permission_or_safety_note:
+    validations:
+      required: true
+  - type: textarea
+    id: facts
+    attributes:
+      label: Proposed Player Data facts
+      description: Use original ClassicRunDex wording. Each proposed fact must cite Source Record IDs.
+      placeholder: |
+        - entity_type:
+          thai_name:
+          global_name:
+          field:
+          value:
+          source_record_ids:
+          proposed_review_state:
+    validations:
+      required: true
+  - type: textarea
+    id: translations
+    attributes:
+      label: Proposed Translations or aliases
+      description: Translation helps lookup and comprehension. It does not verify gameplay facts.
+      placeholder: |
+        - language:
+          value:
+          maps_to:
+          note:
+    validations:
+      required: false
+  - type: textarea
+    id: guide_impact
+    attributes:
+      label: Player Guide impact
+      description: Name any Player Guide recommendation affected, and whether the packet should change advice, add caution, or remain context.
+      placeholder: |
+        Affected Player Guide:
+        Impact:
+        Recommendation-driving? yes/no:
+        Reason:
+    validations:
+      required: true
+  - type: textarea
+    id: reviewer_notes
+    attributes:
+      label: Reviewer and changelog notes
+      description: Data Reviewer or Maintainer approval is required before official Classic or verified Classic claims can be published.
+      placeholder: |
+        Reviewer name:
+        Reviewer role:
+        Reviewed at:
+        Decision:
+        Remaining questions:
+        Changelog audit note:
+    validations:
+      required: false
+  - type: checkboxes
+    id: source_safety
+    attributes:
+      label: Source safety
+      options:
+        - label: This packet contains no copied prose, copied tables, copied assets, private API output, reverse-engineered data, bulk mirrored community data, account details, coupon codes, or invite-service requests.
+          required: true
+        - label: Every proposed recommendation-driving fact cites official Classic or player-verified Classic Source Records.
+          required: true
+        - label: I understand a Data Reviewer or Maintainer must approve before any claim becomes official Classic or player-verified Classic.
+          required: true
