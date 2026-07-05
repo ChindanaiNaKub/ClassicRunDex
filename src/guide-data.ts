@@ -235,9 +235,19 @@ function canDriveRecommendation(status: string): boolean {
   return recommendationDrivingSourceStatuses.includes(status as SourceStatus);
 }
 
-function isHttpsUrl(value: string): boolean {
+function isOfficialChecklistUrl(value: string): boolean {
   try {
-    return new URL(value).protocol === "https:";
+    const url = new URL(value);
+    const officialDomains = ["devsisters.com", "devplay.com"];
+    const officialHosts = ["play.google.com"];
+
+    return (
+      url.protocol === "https:" &&
+      (officialHosts.includes(url.hostname) ||
+        officialDomains.some(
+          (domain) => url.hostname === domain || url.hostname.endsWith(`.${domain}`),
+        ))
+    );
   } catch {
     return false;
   }
@@ -1069,6 +1079,22 @@ export function validatePlayerGuideData({
         `Source Record ${sourceRecord.id} uses unknown source status ${sourceRecord.status}.`,
       );
     }
+
+    if (!sourceRecord.label.trim()) {
+      errors.push(`Source Record ${sourceRecord.id} must have a label.`);
+    }
+
+    if (!sourceRecord.owner.trim()) {
+      errors.push(`Source Record ${sourceRecord.id} must name an owner.`);
+    }
+
+    if (!isIsoDate(sourceRecord.observedAt)) {
+      errors.push(`Source Record ${sourceRecord.id} must use YYYY-MM-DD observedAt.`);
+    }
+
+    if (!sourceRecord.note.trim()) {
+      errors.push(`Source Record ${sourceRecord.id} must have a note.`);
+    }
   });
 
   playerDataFacts.forEach((fact) => {
@@ -1155,15 +1181,13 @@ export function validatePlayerGuideData({
       errors.push(`Launch Checklist item ${item.id} uses unknown source status ${item.status}.`);
     }
 
-    if (!canDriveRecommendation(item.status)) {
+    if (item.status !== "official_classic") {
       errors.push(
-        `Launch Checklist item ${item.id} cannot use ${sourceStatusLabel(
-          item.status,
-        )} as its visible status.`,
+        `Launch Checklist item ${item.id} must use official Classic as its visible status.`,
       );
     }
 
-    if (!isHttpsUrl(item.officialUrl)) {
+    if (!isOfficialChecklistUrl(item.officialUrl)) {
       errors.push(`Launch Checklist item ${item.id} must use an HTTPS official URL.`);
     }
 
@@ -1189,7 +1213,7 @@ export function validatePlayerGuideData({
         return;
       }
 
-      if (!canDriveRecommendation(sourceRecord.status)) {
+      if (sourceRecord.status !== "official_classic") {
         errors.push(
           `Launch Checklist item ${item.id} cites ${sourceStatusLabel(
             sourceRecord.status,

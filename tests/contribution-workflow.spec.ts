@@ -145,13 +145,39 @@ test("verified Classic claims cannot be published from community or historical S
   );
 });
 
+test("Source Records must keep owner, observation, date, and safety context", () => {
+  const packet = validPacket();
+  packet.sourceRecords[0].owner = "";
+  packet.sourceRecords[0].urlOrObservation = "";
+  packet.sourceRecords[0].observedAt = "July 5";
+  packet.sourceRecords[0].safetyNote = "";
+
+  expectPacketError(packet, "Source Record SRC-PACKET-CLASSIC-001 must name an owner.");
+  expectPacketError(
+    packet,
+    "Source Record SRC-PACKET-CLASSIC-001 must include a URL or observation note.",
+  );
+  expectPacketError(
+    packet,
+    "Source Record SRC-PACKET-CLASSIC-001 must use YYYY-MM-DD observedAt.",
+  );
+  expectPacketError(
+    packet,
+    "Source Record SRC-PACKET-CLASSIC-001 must include a permission or safety note.",
+  );
+});
+
 test("unsafe Contribution Claims are rejected before publication", () => {
   const packet = validPacket();
-  packet.claims[0].unsafeSubmissionKinds = ["copied_prose", "private_api"];
+  packet.claims[0].unsafeSubmissionKinds = [
+    "copied_prose",
+    "private_api",
+    "datamined_data",
+  ];
 
   expectPacketError(
     packet,
-    "Contribution Claim CLAIM-STARTER-001 contains rejected source material: copied prose, private API output.",
+    "Contribution Claim CLAIM-STARTER-001 contains rejected source material: copied prose, private API output, datamined data.",
   );
 });
 

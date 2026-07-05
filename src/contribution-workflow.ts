@@ -26,6 +26,7 @@ export type UnsafeSubmissionKind =
   | "copied_asset"
   | "private_api"
   | "reverse_engineering"
+  | "datamined_data"
   | "bulk_mirror"
   | "account_or_coupon"
   | "invite_service"
@@ -163,6 +164,7 @@ export const unsafeSubmissionLabels: Record<UnsafeSubmissionKind, string> = {
   copied_asset: "copied asset",
   private_api: "private API output",
   reverse_engineering: "reverse-engineered data",
+  datamined_data: "datamined data",
   bulk_mirror: "bulk mirrored data",
   account_or_coupon: "account details or coupon codes",
   invite_service: "invite-service request",
@@ -286,8 +288,20 @@ export function validateContributionPacket(packet: ContributionPacket): Contribu
       errors.push(`Source Record ${sourceRecord.id} uses unknown Review State ${sourceRecord.proposedState}.`);
     }
 
+    if (!sourceRecord.owner.trim()) {
+      errors.push(`Source Record ${sourceRecord.id} must name an owner.`);
+    }
+
+    if (!sourceRecord.urlOrObservation.trim()) {
+      errors.push(`Source Record ${sourceRecord.id} must include a URL or observation note.`);
+    }
+
     if (!isIsoDate(sourceRecord.observedAt)) {
       errors.push(`Source Record ${sourceRecord.id} must use YYYY-MM-DD observedAt.`);
+    }
+
+    if (!sourceRecord.safetyNote.trim()) {
+      errors.push(`Source Record ${sourceRecord.id} must include a permission or safety note.`);
     }
   });
 

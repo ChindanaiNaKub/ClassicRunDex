@@ -40,8 +40,20 @@ interface GuideSelection {
   resourceState: ResourceState;
 }
 
+const htmlEscapes: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => htmlEscapes[character]);
+}
+
 function statusBadge(status: SourceStatus): string {
-  return `<span class="status status-${status}">${statusLabels[status]}</span>`;
+  return `<span class="status status-${status}">${escapeHtml(statusLabels[status])}</span>`;
 }
 
 function selectedAttribute(value: string, selectedValue: string): string {
@@ -55,8 +67,8 @@ function guideOptions<TValue extends string>(
   return options
     .map(
       (option) =>
-        `<option value="${option.value}"${selectedAttribute(option.value, selectedValue)}>
-          ${option.label}
+        `<option value="${escapeHtml(option.value)}"${selectedAttribute(option.value, selectedValue)}>
+          ${escapeHtml(option.label)}
         </option>`,
     )
     .join("");
@@ -75,8 +87,8 @@ function translationList(fact: PlayerDataFact): string {
           .map(
             (translation) => `
               <li>
-                <span>${translationLanguageLabels[translation.language]}</span>
-                <strong>${translation.value}</strong>
+                <span>${escapeHtml(translationLanguageLabels[translation.language])}</span>
+                <strong>${escapeHtml(translation.value)}</strong>
               </li>
             `,
           )
@@ -91,18 +103,18 @@ function factCard(fact: PlayerDataFact): string {
   return `
     <article
       class="fact-card"
-      aria-label="${fact.entityType}: ${fact.thaiName}"
+      aria-label="${escapeHtml(`${fact.entityType}: ${fact.thaiName}`)}"
       data-testid="player-data-fact"
-      data-fact-id="${fact.id}"
+      data-fact-id="${escapeHtml(fact.id)}"
     >
-      <div class="fact-card__type">${fact.entityType}</div>
-      <h3>${fact.thaiName}</h3>
-      <p class="fact-card__alias">${fact.globalName}</p>
+      <div class="fact-card__type">${escapeHtml(fact.entityType)}</div>
+      <h3>${escapeHtml(fact.thaiName)}</h3>
+      <p class="fact-card__alias">${escapeHtml(fact.globalName)}</p>
       ${translationList(fact)}
       <dl>
         <div>
-          <dt>${fact.field}</dt>
-          <dd>${fact.value}</dd>
+          <dt>${escapeHtml(fact.field)}</dt>
+          <dd>${escapeHtml(fact.value)}</dd>
         </div>
       </dl>
       <div class="status-row">${statusBadge(fact.status)}</div>
@@ -138,13 +150,13 @@ function sourceItem(source: SourceRecord): string {
   return `
     <li>
       <div>
-        <strong>${source.id}</strong>
-        <span>${source.label}</span>
+        <strong>${escapeHtml(source.id)}</strong>
+        <span>${escapeHtml(source.label)}</span>
       </div>
-      <p>${source.note}</p>
+      <p>${escapeHtml(source.note)}</p>
       <div class="source-meta">
         ${statusBadge(source.status)}
-        <span>Observed ${source.observedAt}</span>
+        <span>Observed ${escapeHtml(source.observedAt)}</span>
       </div>
     </li>
   `;
@@ -155,16 +167,16 @@ function checklistCard(item: ChecklistItem): string {
     <article class="check-item" data-testid="checklist-item">
       <i data-lucide="shield-check" aria-hidden="true"></i>
       <div>
-        <h3>${item.title}</h3>
-        <p>${item.context}</p>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.context)}</p>
         <div class="check-meta">
           ${statusBadge(item.status)}
-          <span>Reviewed ${item.lastReviewed}</span>
-          <span class="expiry-status">${checklistExpiryLabels[item.expiryStatus]}</span>
+          <span>Reviewed ${escapeHtml(item.lastReviewed)}</span>
+          <span class="expiry-status">${escapeHtml(checklistExpiryLabels[item.expiryStatus])}</span>
         </div>
-        <p class="check-source-ids">Source Records: ${item.sourceIds.join(", ")}</p>
-        <a class="check-link" href="${item.officialUrl}" target="_blank" rel="noreferrer">
-          <span>${item.actionLabel}</span>
+        <p class="check-source-ids">Source Records: ${escapeHtml(item.sourceIds.join(", "))}</p>
+        <a class="check-link" href="${escapeHtml(item.officialUrl)}" target="_blank" rel="noreferrer">
+          <span>${escapeHtml(item.actionLabel)}</span>
           <i data-lucide="external-link" aria-hidden="true"></i>
         </a>
       </div>
@@ -177,10 +189,10 @@ function trustPolicyCard(surface: TrustPolicySurface): string {
     <article class="trust-card" data-testid="trust-policy-surface">
       <i data-lucide="shield-check" aria-hidden="true"></i>
       <div>
-        <span class="trust-label">${surface.publicLabel}</span>
-        <h3>${surface.title}</h3>
-        <p>${surface.body}</p>
-        <p class="check-source-ids">Source Records: ${surface.sourceIds.join(", ")}</p>
+        <span class="trust-label">${escapeHtml(surface.publicLabel)}</span>
+        <h3>${escapeHtml(surface.title)}</h3>
+        <p>${escapeHtml(surface.body)}</p>
+        <p class="check-source-ids">Source Records: ${escapeHtml(surface.sourceIds.join(", "))}</p>
       </div>
     </article>
   `;
@@ -189,10 +201,10 @@ function trustPolicyCard(surface: TrustPolicySurface): string {
 function launchSignalCard(signal: WeekOneLaunchSignal): string {
   return `
     <article class="launch-signal" data-testid="launch-signal">
-      <h3>${signal.label}</h3>
-      <p><strong>Question:</strong> ${signal.question}</p>
-      <p><strong>Manual evidence:</strong> ${signal.manualEvidence}</p>
-      <p><strong>Action:</strong> ${signal.actionThreshold}</p>
+      <h3>${escapeHtml(signal.label)}</h3>
+      <p><strong>Question:</strong> ${escapeHtml(signal.question)}</p>
+      <p><strong>Manual evidence:</strong> ${escapeHtml(signal.manualEvidence)}</p>
+      <p><strong>Action:</strong> ${escapeHtml(signal.actionThreshold)}</p>
     </article>
   `;
 }
@@ -227,7 +239,7 @@ function renderGuide(selection: GuideSelection): string {
       <section id="guide" class="guide-band" aria-labelledby="guide-title">
         <div class="guide-heading">
           <p class="eyebrow">Thai-first Player Guide</p>
-          <h1 id="guide-title">${playerGuide.playerJob}</h1>
+          <h1 id="guide-title">${escapeHtml(playerGuide.playerJob)}</h1>
         </div>
         <div class="guide-shell">
           <div class="answer-stack">
@@ -237,26 +249,26 @@ function renderGuide(selection: GuideSelection): string {
               aria-live="polite"
             >
               <div class="answer-panel__header">
-                <span class="guide-type">${activeRecommendation.target.type}</span>
+                <span class="guide-type">${escapeHtml(activeRecommendation.target.type)}</span>
                 <span class="reviewed">
                   <i data-lucide="calendar-days" aria-hidden="true"></i>
-                  ตรวจล่าสุด ${playerGuide.lastReviewed}
+                  ตรวจล่าสุด ${escapeHtml(playerGuide.lastReviewed)}
                 </span>
               </div>
               <div class="state-summary" data-testid="selected-guide-state">
-                <span><strong>เป้าหมาย:</strong> ${selectedGoal.label}</span>
-                <span><strong>ทรัพยากร:</strong> ${selectedResourceState.label}</span>
+                <span><strong>เป้าหมาย:</strong> ${escapeHtml(selectedGoal.label)}</span>
+                <span><strong>ทรัพยากร:</strong> ${escapeHtml(selectedResourceState.label)}</span>
               </div>
-              <h2>${activeRecommendation.recommendation}</h2>
-              <p class="target">${activeRecommendation.target.name}</p>
-              <p>${activeRecommendation.shortReason}</p>
+              <h2>${escapeHtml(activeRecommendation.recommendation)}</h2>
+              <p class="target">${escapeHtml(activeRecommendation.target.name)}</p>
+              <p>${escapeHtml(activeRecommendation.shortReason)}</p>
               <p class="level-cost" data-testid="level-cost-context">
-                <strong>Level / Cost:</strong> ${activeRecommendation.levelCostContext}
+                <strong>Level / Cost:</strong> ${escapeHtml(activeRecommendation.levelCostContext)}
               </p>
               <div class="status-row" aria-label="Recommendation source statuses">
                 ${drivingFacts.map((fact) => statusBadge(fact.status)).join("")}
               </div>
-              <p class="caution">${activeRecommendation.caution}</p>
+              <p class="caution">${escapeHtml(activeRecommendation.caution)}</p>
             </article>
 
             <section
@@ -284,14 +296,14 @@ function renderGuide(selection: GuideSelection): string {
               <select id="guide-goal" aria-label="เลือกเป้าหมาย">
                 ${guideOptions(guideGoalOptions, activeRecommendation.goal)}
               </select>
-              <span class="control-help">${selectedGoal.helper}</span>
+              <span class="control-help">${escapeHtml(selectedGoal.helper)}</span>
             </label>
             <label for="resource-state">
               <span>ทรัพยากรคร่าว ๆ</span>
               <select id="resource-state" aria-label="เลือกทรัพยากร">
                 ${guideOptions(resourceStateOptions, activeRecommendation.resourceState)}
               </select>
-              <span class="control-help">${selectedResourceState.helper}</span>
+              <span class="control-help">${escapeHtml(selectedResourceState.helper)}</span>
             </label>
             <button type="button" class="primary-button">
               ดูคำแนะนำ
@@ -387,16 +399,16 @@ function renderGuide(selection: GuideSelection): string {
         <div class="section-heading">
           <div>
             <p class="eyebrow">Week-One Launch Loop</p>
-            <h2 id="launch-loop-title">${weekOneLaunchLoop.title}</h2>
+            <h2 id="launch-loop-title">${escapeHtml(weekOneLaunchLoop.title)}</h2>
           </div>
           <span class="reviewed">
             <i data-lucide="calendar-days" aria-hidden="true"></i>
-            ${weekOneLaunchLoop.reviewWindow}
+            ${escapeHtml(weekOneLaunchLoop.reviewWindow)}
           </span>
         </div>
         <div class="launch-loop-summary">
           <p>
-            Manual repo-owned loop in <strong>${weekOneLaunchLoop.repoRecordPath}</strong>.
+            Manual repo-owned loop in <strong>${escapeHtml(weekOneLaunchLoop.repoRecordPath)}</strong>.
             No analytics SDK, account tracking, coupon collection, invite service, affiliate redirect,
             paid boost, or account-sale flow.
           </p>

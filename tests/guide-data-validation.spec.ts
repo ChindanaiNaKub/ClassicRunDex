@@ -86,6 +86,27 @@ test("unknown Source Record references are rejected", () => {
   );
 });
 
+test("Source Records require provenance labels, owners, review dates, and notes", () => {
+  const data = validDataSet();
+  const sourceRecord = data.sourceRecords.find(
+    (source) => source.id === "SRC-CLASSIC-OBS-001",
+  );
+
+  expect(sourceRecord).toBeDefined();
+  sourceRecord!.label = "";
+  sourceRecord!.owner = "";
+  sourceRecord!.observedAt = "July 5";
+  sourceRecord!.note = "";
+
+  expectValidationError(data, "Source Record SRC-CLASSIC-OBS-001 must have a label.");
+  expectValidationError(data, "Source Record SRC-CLASSIC-OBS-001 must name an owner.");
+  expectValidationError(
+    data,
+    "Source Record SRC-CLASSIC-OBS-001 must use YYYY-MM-DD observedAt.",
+  );
+  expectValidationError(data, "Source Record SRC-CLASSIC-OBS-001 must have a note.");
+});
+
 test("Translation records require known languages and values", () => {
   const data = validDataSet();
   const fact = data.playerDataFacts.find(
@@ -116,7 +137,7 @@ test("Launch Checklist items require official URLs, review dates, expiry state, 
   const item = data.checklist.find((checklistItem) => checklistItem.id === "CHECK-CLASSIC-COUPON");
 
   expect(item).toBeDefined();
-  item!.officialUrl = "http://example.com/not-official";
+  item!.officialUrl = "https://example.com/not-official";
   item!.lastReviewed = "July 5";
   item!.expiryStatus = "stale" as ChecklistExpiryStatus;
   item!.sourceIds = [];
@@ -139,16 +160,25 @@ test("Launch Checklist items require official URLs, review dates, expiry state, 
   );
 });
 
-test("Launch Checklist items cannot cite historical or community Source Records", () => {
+test("Launch Checklist items require official Classic status and Source Records", () => {
   const data = validDataSet();
   const item = data.checklist.find((checklistItem) => checklistItem.id === "CHECK-CLASSIC-COUPON");
+  const sourceRecord = data.sourceRecords.find(
+    (source) => source.id === "SRC-CLASSIC-OBS-001",
+  );
 
   expect(item).toBeDefined();
-  item!.sourceIds = ["SRC-COMMUNITY-LEAD-001"];
+  expect(sourceRecord).toBeDefined();
+  item!.status = "verified_classic";
+  item!.sourceIds = [sourceRecord!.id];
 
   expectValidationError(
     data,
-    "Launch Checklist item CHECK-CLASSIC-COUPON cites community lead Source Record SRC-COMMUNITY-LEAD-001.",
+    "Launch Checklist item CHECK-CLASSIC-COUPON must use official Classic as its visible status.",
+  );
+  expectValidationError(
+    data,
+    "Launch Checklist item CHECK-CLASSIC-COUPON cites player-verified Classic Source Record SRC-CLASSIC-OBS-001.",
   );
 });
 
