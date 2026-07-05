@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run validate:data && tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
+    "validate:data": "node scripts/validate-guide-data.ts",
     "test": "playwright test"
   },
   "dependencies": {

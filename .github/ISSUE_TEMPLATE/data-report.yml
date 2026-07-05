@@ -1,0 +1,87 @@
+name: Source-first data report
+description: Report a correction, missing Player Data, alias, source lead, or Classic-vs-Kakao Difference.
+title: "[Data report]: "
+labels:
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping ClassicRunDex stay useful and source-safe.
+
+        This form starts a Contribution Report. It does not make a claim verified by itself.
+        Do not paste copied wiki tables, copied guide prose, game assets, private API output, datamined content, account details, coupon codes, or invite-service requests.
+  - type: dropdown
+    id: report_type
+    attributes:
+      label: Report type
+      options:
+        - Data correction
+        - Missing Player Data
+        - Thai / English / Korean / historical alias
+        - Source Record lead
+        - Classic-vs-Kakao Difference
+        - Player Guide impact
+    validations:
+      required: true
+  - type: input
+    id: entity
+    attributes:
+      label: Cookie, Pet, Treasure, Combination, Episode, or checklist item
+      placeholder: "Example: main Cookie + Pet pair, Treasure lead, Launch gifts"
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: What did you observe?
+      description: Use your own words. Screenshots or links are useful, but do not copy prose or tables into the issue.
+      placeholder: "What seems wrong, missing, unclear, or different from Cookie Run Kakao?"
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Source Record details
+      description: Include source URL, owner, date observed, and whether it is official Classic, player-verified Classic, historical Kakao, Translation-only, community lead, or unsure.
+      placeholder: |
+        Source URL or note:
+        Owner:
+        Observed at:
+        Proposed source status:
+    validations:
+      required: true
+  - type: dropdown
+    id: proposed_status
+    attributes:
+      label: Proposed Review State
+      description: Most reports should start as reported, candidate, community lead, historical Kakao, or Translation-only.
+      options:
+        - reported
+        - needs_info
+        - candidate
+        - community_lead
+        - historical_kakao
+        - translation_only
+        - unsure
+    validations:
+      required: true
+  - type: textarea
+    id: guide_impact
+    attributes:
+      label: Player Guide impact
+      description: Say whether this should change a recommendation, only add context, improve lookup, or stay as a lead.
+      placeholder: "This should / should not affect a Player Guide because..."
+    validations:
+      required: true
+  - type: checkboxes
+    id: source_safety
+    attributes:
+      label: Source safety
+      options:
+        - label: I am not submitting copied official/community prose, copied tables, game art, sprites, audio, extracted assets, private API output, reverse-engineered data, account details, coupon codes, or invite-service requests.
+          required: true
+        - label: I understand Translation improves lookup but does not verify gameplay facts.
+          required: true
+        - label: I understand historical Cookie Run Kakao or community material cannot drive Player Guide recommendations until reviewed against Cookie Run Classic.
+          required: true
