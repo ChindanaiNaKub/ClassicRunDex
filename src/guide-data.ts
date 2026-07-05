@@ -138,6 +138,8 @@ export const sourceStatuses: SourceStatus[] = [
   "community_lead",
 ];
 
+export const entityTypes: EntityType[] = ["Cookie", "Pet", "Treasure", "Combination"];
+
 export const recommendationDrivingSourceStatuses: SourceStatus[] = [
   "official_classic",
   "verified_classic",
@@ -211,6 +213,10 @@ function isSourceStatus(status: string): status is SourceStatus {
   return sourceStatuses.includes(status as SourceStatus);
 }
 
+function isEntityType(entityType: string): entityType is EntityType {
+  return entityTypes.includes(entityType as EntityType);
+}
+
 function isTranslationLanguage(language: string): language is TranslationLanguage {
   return translationLanguages.includes(language as TranslationLanguage);
 }
@@ -255,6 +261,10 @@ function isOfficialChecklistUrl(value: string): boolean {
 
 function isIsoDate(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+function hasReviewYear(value: string): boolean {
+  return /\d{4}/.test(value);
 }
 
 export const guideGoalOptions: GuideOption<GuideGoal>[] = [
@@ -1131,7 +1141,63 @@ export function validatePlayerGuideData({
     });
   });
 
+  if (!playerGuide.playerJob.trim()) {
+    errors.push(`Player Guide ${playerGuide.id} must have a Player Job.`);
+  }
+
+  if (!playerGuide.lastReviewed.trim()) {
+    errors.push(`Player Guide ${playerGuide.id} must have a last-reviewed date.`);
+  } else if (!hasReviewYear(playerGuide.lastReviewed)) {
+    errors.push(`Player Guide ${playerGuide.id} last-reviewed date must include a year.`);
+  }
+
+  if (!guideGoalOptions.some((option) => option.value === playerGuide.defaultGoal)) {
+    errors.push(
+      `Player Guide ${playerGuide.id} uses unknown default goal ${playerGuide.defaultGoal}.`,
+    );
+  }
+
+  if (
+    !resourceStateOptions.some(
+      (option) => option.value === playerGuide.defaultResourceState,
+    )
+  ) {
+    errors.push(
+      `Player Guide ${playerGuide.id} uses unknown default resource state ${playerGuide.defaultResourceState}.`,
+    );
+  }
+
   getGuideRecommendationsForValidation(playerGuide).forEach((recommendation) => {
+    if (!recommendation.recommendation.trim()) {
+      errors.push(`Player Guide recommendation ${recommendation.id} must have a recommendation.`);
+    }
+
+    if (!isEntityType(recommendation.target.type)) {
+      errors.push(
+        `Player Guide recommendation ${recommendation.id} uses unknown target type ${recommendation.target.type}.`,
+      );
+    }
+
+    if (!recommendation.target.name.trim()) {
+      errors.push(`Player Guide recommendation ${recommendation.id} must name a target.`);
+    }
+
+    if (!recommendation.shortReason.trim()) {
+      errors.push(
+        `Player Guide recommendation ${recommendation.id} must explain concise reasoning.`,
+      );
+    }
+
+    if (!recommendation.levelCostContext.trim()) {
+      errors.push(
+        `Player Guide recommendation ${recommendation.id} must include Level / Cost context.`,
+      );
+    }
+
+    if (!recommendation.caution.trim()) {
+      errors.push(`Player Guide recommendation ${recommendation.id} must include a caution.`);
+    }
+
     if (recommendation.drivingFactIds.length === 0) {
       errors.push(
         `Player Guide recommendation ${recommendation.id} must reference at least one driving fact.`,

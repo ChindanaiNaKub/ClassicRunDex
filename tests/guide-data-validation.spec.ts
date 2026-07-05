@@ -40,6 +40,45 @@ test("current Player Guide data satisfies Source Record status rules", () => {
   expect(validation.valid).toBe(true);
 });
 
+test("Player Guide answers require review date, target, reasoning, cost context, and caution", () => {
+  const data = validDataSet();
+  const recommendation = data.playerGuide.recommendations[0];
+
+  data.playerGuide.playerJob = "";
+  data.playerGuide.lastReviewed = "";
+  recommendation.recommendation = "";
+  recommendation.target.name = "";
+  recommendation.shortReason = "";
+  recommendation.levelCostContext = "";
+  recommendation.caution = "";
+
+  expectValidationError(data, "Player Guide GUIDE-RETURNING-THAI-STARTER must have a Player Job.");
+  expectValidationError(
+    data,
+    "Player Guide GUIDE-RETURNING-THAI-STARTER must have a last-reviewed date.",
+  );
+  expectValidationError(
+    data,
+    "Player Guide recommendation REC-EARLY-COIN-LIMITED must have a recommendation.",
+  );
+  expectValidationError(
+    data,
+    "Player Guide recommendation REC-EARLY-COIN-LIMITED must name a target.",
+  );
+  expectValidationError(
+    data,
+    "Player Guide recommendation REC-EARLY-COIN-LIMITED must explain concise reasoning.",
+  );
+  expectValidationError(
+    data,
+    "Player Guide recommendation REC-EARLY-COIN-LIMITED must include Level / Cost context.",
+  );
+  expectValidationError(
+    data,
+    "Player Guide recommendation REC-EARLY-COIN-LIMITED must include a caution.",
+  );
+});
+
 test("lookup terms resolve the same Player Data fact without changing verification", () => {
   const englishResult = searchPlayerDataFacts("main runner");
   const thaiResult = searchPlayerDataFacts("คุกกี้ตัวหลัก");
